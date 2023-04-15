@@ -130,6 +130,7 @@ def gistPostprocessor(
     output_type="medium",
     gist_threshold=5,
     public=True,
+    nbdev=True,
 ):
     """
     Iterate over listify'ed markdown, identify code, insert gist http instead
@@ -167,20 +168,20 @@ def gistPostprocessor(
 
             # Skip empty cells:
             if code_block.replace("\n", "") != "":
-                if lcb > gist_threshold:
+                if nbdev and not (code_block.startswith("from nbdev.showdoc import *") or "#| hide" in code_block):
+                    if lcb > gist_threshold:
+                        # The filename within the gist:
+                        fn = "part_%02i%s" % (len(gists) + 1, lang_ext)
 
-                    # The filename within the gist:
-                    fn = "part_%02i%s" % (len(gists) + 1, lang_ext)
+                        gists.append((fn, code_block))
 
-                    gists.append((fn, code_block))
+                        # We don't know the gist url yet, as it is not created. So we only use a
+                        # placeholder, which we will later replace:
+                        new_md_str += f"\n{PLACEHOLDER}?file={fn}\n "
 
-                    # We don't know the gist url yet, as it is not created. So we only use a
-                    # placeholder, which we will later replace:
-                    new_md_str += f"\n{PLACEHOLDER}?file={fn}\n "
-
-                else:
-                    # let's keep it as it is, we need to add back the ```
-                    new_md_str += "```\n" + code_block + "```\n"
+                    else:
+                        # let's keep it as it is, we need to add back the ```
+                        new_md_str += "```\n" + code_block + "```\n"
             # reset our looping vars
             code_block = []
             code_block_started = False

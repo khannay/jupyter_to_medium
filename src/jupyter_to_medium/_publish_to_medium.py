@@ -60,6 +60,7 @@ class Publish:
         self.nb = self.get_notebook()
         self.headers = self.get_headers()
         self.validate_args()
+        self.nbdev=True
 
     def validate_args(self):
         if self.publish_status != "draft":
@@ -192,6 +193,7 @@ class Publish:
                     lang_ext=lang_ext,
                     gist_threshold=self.gist_threshold,
                     public=self.public_gists
+                    nbdev=self.nbdev,
                 )
             except Exception as e:
                 print("Failed to gistify markdown with error: {}".format(e))
